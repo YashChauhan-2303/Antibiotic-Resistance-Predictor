@@ -2,6 +2,16 @@
 
 A full-stack machine learning web application that predicts antibiotic resistance (R/S) using multiple ML models and provides consensus-based recommendations for better clinical decision support.
 
+## 📸 User Interface
+
+### Form & Input Screen
+![Antibiotic Resistance Predictor - Form](./screenshots/ui-form.png)
+
+### Results & Analysis Screen
+![Antibiotic Resistance Predictor - Results](./screenshots/ui-results.png)
+
+---
+
 ## 🧠 Project Overview
 ResistAI takes patient data as input and predicts whether a bacterial infection will be:
 * **Resistant (R)** ❌

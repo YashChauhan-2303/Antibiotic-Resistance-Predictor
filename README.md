@@ -195,6 +195,7 @@ Confidence scores indicate agreement among the 6 models. Higher confidence (>80%
 ```bash
 docker build -t antibiotic-api:1.0.0 ./Backend
 docker run -p 8000:8000 antibiotic-api:1.0.0
+```
 
 ---
 

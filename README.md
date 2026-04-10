@@ -164,6 +164,4 @@ docker run -p 8000:8000 antibiotic-api:1.0.0
 
 ---
 
-**Version:** 1.0.0 Production Ready
-**Last Updated:** 2026-04-11
 **Status:** ✅ Production Ready

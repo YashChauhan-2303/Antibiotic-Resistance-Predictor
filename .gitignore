@@ -1,0 +1,54 @@
+# Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+.env
+.env.local
+app.log
+logs/
+*.joblib
+.DS_Store
+
+# Frontend
+node_modules/
+dist/
+.vite/
+*.log
+.env
+.env.local
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+*.iml
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Docker
+.dockerignore
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Auto-generated
+/Backend/logs/
+

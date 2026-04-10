@@ -24,7 +24,7 @@ dist/
 .vite/
 *.log
 .env
-.env.local
+.env.localclear
 .DS_Store
 
 # IDE

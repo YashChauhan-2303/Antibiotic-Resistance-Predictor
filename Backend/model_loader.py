@@ -1,4 +1,6 @@
+import os
 import joblib
+import gdown
 from pathlib import Path
 from logger_config import logger
 from exceptions import ModelNotLoadedException
@@ -6,7 +8,7 @@ from config import settings
 
 
 class ModelLoader:
-    """Singleton class to load and cache models from joblib file"""
+    """Singleton class to load and cache models"""
 
     _instance = None
     _models = None
@@ -18,7 +20,6 @@ class ModelLoader:
         return cls._instance
 
     def load_models(self, model_path: str = None):
-        """Load models from joblib file"""
         if model_path is None:
             model_path = settings.MODEL_PATH
 
@@ -27,17 +28,24 @@ class ModelLoader:
             return self._models
 
         try:
-            # Check if file exists
             full_path = Path(model_path)
+
+            # 🔥 STEP 1: If file NOT present → download (Render case)
             if not full_path.exists():
-                error_msg = f"Model file not found: {full_path}"
-                logger.error(error_msg)
-                raise ModelNotLoadedException(error_msg)
+                logger.warning(f"Model not found locally. Downloading from Google Drive...")
 
+                url = "https://drive.google.com/uc?id=1fEvb3FJdrrraohY_rR16mHLWRi796Yi6"
+
+                gdown.download(url, str(full_path), quiet=False)
+
+                if not full_path.exists():
+                    raise ModelNotLoadedException("Failed to download model file")
+
+            # 🔥 STEP 2: Load model (works for both local + Render)
             logger.info(f"Loading models from {model_path}...")
-            model_data = joblib.load(model_path)
+            model_data = joblib.load(full_path)
 
-            # Validate required keys
+            # Validate keys
             required_keys = ["preprocessor", "lr", "rf", "svm", "xgb_estimators", "bag", "ada"]
             missing_keys = [key for key in required_keys if key not in model_data]
 
@@ -48,8 +56,8 @@ class ModelLoader:
 
             self._models = model_data
             self._loaded = True
-            logger.info(f"✓ Successfully loaded models from {model_path}")
-            logger.info(f"  - Models available: {list(model_data.keys())}")
+
+            logger.info("✓ Models loaded successfully!")
             return self._models
 
         except Exception as e:
@@ -57,22 +65,12 @@ class ModelLoader:
             raise ModelNotLoadedException(str(e))
 
     def is_loaded(self):
-        """Check if models are loaded"""
         return self._loaded and self._models is not None
 
     def get_models(self):
-        """Get cached models"""
         if not self.is_loaded():
             raise ModelNotLoadedException("Models not loaded. Call load_models() first.")
         return self._models
 
-    @classmethod
-    def reset(cls):
-        """Reset the singleton (useful for testing)"""
-        if cls._instance:
-            cls._instance._models = None
-            cls._instance._loaded = False
 
-
-# Global instance
 model_loader = ModelLoader()

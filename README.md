@@ -10,6 +10,16 @@ A machine learning-based web application that predicts antibiotic resistance pat
 - **Output**: Resistance prediction + confidence score for each antibiotic
 - **Architecture**: FastAPI backend + React Vite frontend
 
+## 📸 Screenshots
+
+### Patient Input Form
+![Patient Input Form](./screenshots/ui-form.png)
+*Left: Patient input form with 7 fields and dark mode toggle*
+
+### Prediction Results
+![Prediction Results](./screenshots/ui-result.png)
+*Right: Results table showing antibiotic predictions with confidence scores and analysis summary*
+
 ## 📋 Project Structure
 
 ```

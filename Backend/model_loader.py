@@ -18,12 +18,12 @@ class ModelLoader:
         return cls._instance
 
     def load_models(self, model_path: str = None):
-        """Load models from joblib file"""
+        """Load model from joblib file"""
         if model_path is None:
             model_path = settings.MODEL_PATH
 
         if self._loaded and self._models is not None:
-            logger.debug("Models already loaded, returning cached version")
+            logger.debug("Model already loaded, returning cached version")
             return self._models
 
         try:
@@ -34,11 +34,11 @@ class ModelLoader:
                 logger.error(error_msg)
                 raise ModelNotLoadedException(error_msg)
 
-            logger.info(f"Loading models from {model_path}...")
+            logger.info(f"Loading model from {model_path}...")
             model_data = joblib.load(model_path)
 
             # Validate required keys
-            required_keys = ["preprocessor", "lr", "rf", "svm", "xgb_estimators", "bag", "ada"]
+            required_keys = ["preprocessor", "model", "thresholds"]
             missing_keys = [key for key in required_keys if key not in model_data]
 
             if missing_keys:
@@ -46,14 +46,23 @@ class ModelLoader:
                 logger.error(error_msg)
                 raise ModelNotLoadedException(error_msg)
 
+            # Validate thresholds length (should be 15 for 15 antibiotics)
+            thresholds = model_data.get("thresholds", [])
+            if len(thresholds) != 15:
+                error_msg = f"Expected 15 thresholds, got {len(thresholds)}"
+                logger.error(error_msg)
+                raise ModelNotLoadedException(error_msg)
+
             self._models = model_data
             self._loaded = True
-            logger.info(f"✓ Successfully loaded models from {model_path}")
-            logger.info(f"  - Models available: {list(model_data.keys())}")
+            logger.info(f"✓ Successfully loaded model from {model_path}")
+            logger.info(f"  - Preprocessor: {type(model_data['preprocessor']).__name__}")
+            logger.info(f"  - Model: {type(model_data['model']).__name__}")
+            logger.info(f"  - Thresholds: {len(thresholds)} antibiotics")
             return self._models
 
         except Exception as e:
-            logger.error(f"✗ Error loading models: {str(e)}", exc_info=True)
+            logger.error(f"✗ Error loading model: {str(e)}", exc_info=True)
             raise ModelNotLoadedException(str(e))
 
     def is_loaded(self):

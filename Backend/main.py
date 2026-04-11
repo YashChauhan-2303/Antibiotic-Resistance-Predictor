@@ -24,7 +24,7 @@ from schemas import (
     AntibioticPrediction,
     PredictionSummary,
 )
-from utils import predict_all_models, ANTIBIOTIC_COLS
+from utils import predict_xgboost, ANTIBIOTIC_COLS
 from exceptions import APIException, ModelNotLoadedException, ValidationException
 
 # Create logs directory
@@ -168,23 +168,18 @@ async def predict(patient: PatientInput):
     """
     Make antibiotic resistance predictions for a patient.
 
-    This endpoint uses an ensemble of 6 ML models to predict resistance for 15 antibiotics.
+    This endpoint uses a single XGBoost multi-output model to predict resistance for 15 antibiotics.
 
-    **Models:**
-    - Logistic Regression
-    - Random Forest
-    - Support Vector Machine (SVM)
-    - XGBoost
-    - Bagging
-    - AdaBoost
+    **Model:**
+    - XGBoost (multi-output with thresholds)
 
     **Input:** Patient data with 7 fields
-    **Output:** Predictions for 15 antibiotics with confidence scores and consensus prediction
+    **Output:** Predictions for 15 antibiotics with confidence scores
     """
     try:
         if not model_loader.is_loaded():
-            logger.error("Models not loaded for prediction")
-            raise ModelNotLoadedException("ML models not initialized. Server may still be starting.")
+            logger.error("Model not loaded for prediction")
+            raise ModelNotLoadedException("ML model not initialized. Server may still be starting.")
 
         logger.info(f"Processing prediction request for patient Age={patient.Age}, Gender={patient.Gender}")
 
@@ -192,21 +187,21 @@ async def predict(patient: PatientInput):
         patient_dict = patient.model_dump()
 
         # Make predictions
-        predictions = predict_all_models(patient_dict)
+        predictions = predict_xgboost(patient_dict)
 
         # Build summary
-        resistant_antibiotics = [p["antibiotic"] for p in predictions if p["consensus"] == "Resistant"]
-        susceptible_antibiotics = [p["antibiotic"] for p in predictions if p["consensus"] == "Susceptible"]
+        resistant_antibiotics = [p["antibiotic"] for p in predictions if p["prediction"] == "Resistant"]
+        susceptible_antibiotics = [p["antibiotic"] for p in predictions if p["prediction"] == "Susceptible"]
 
         high_confidence_resistant = [
             p["antibiotic"]
             for p in predictions
-            if p["consensus"] == "Resistant" and p["confidence"] > 80
+            if p["prediction"] == "Resistant" and p["confidence"] > 80
         ]
         high_confidence_susceptible = [
             p["antibiotic"]
             for p in predictions
-            if p["consensus"] == "Susceptible" and p["confidence"] > 80
+            if p["prediction"] == "Susceptible" and p["confidence"] > 80
         ]
 
         # Recommended antibiotics: susceptible with high confidence
@@ -250,14 +245,7 @@ async def info():
         api_name=settings.API_TITLE,
         version=settings.API_VERSION,
         environment=settings.ENVIRONMENT,
-        models=[
-            "Logistic Regression",
-            "Random Forest",
-            "Support Vector Machine (SVM)",
-            "XGBoost",
-            "Bagging",
-            "AdaBoost",
-        ],
+        models=["XGBoost (Multi-Output)"],
         antibiotics=ANTIBIOTIC_COLS,
         input_fields={
             "Age": "float (0-150 years)",

@@ -1,27 +1,6 @@
 import { useMemo } from 'react'
 
 function ResultsTable({ data, darkMode }) {
-  const models = useMemo(() => [
-    'Logistic Regression',
-    'Random Forest',
-    'SVM',
-    'XGBoost',
-    'Bagging',
-    'AdaBoost'
-  ], [])
-
-  const getAbbreviation = (model) => {
-    const abbr = {
-      'Logistic Regression': 'LR',
-      'Random Forest': 'RF',
-      'SVM': 'SVM',
-      'XGBoost': 'XGB',
-      'Bagging': 'Bag',
-      'AdaBoost': 'Ada'
-    }
-    return abbr[model] || model
-  }
-
   const getCellClass = (value) => {
     if (value === 'Resistant') {
       return 'bg-red-100 text-red-900 font-semibold'
@@ -38,24 +17,6 @@ function ResultsTable({ data, darkMode }) {
       return 'bg-green-900 text-green-100 font-semibold'
     }
     return 'bg-gray-700 text-gray-300'
-  }
-
-  const getConsensusClass = (value) => {
-    if (value === 'Resistant') {
-      return 'bg-red-200 text-red-900 font-bold'
-    } else if (value === 'Susceptible') {
-      return 'bg-green-200 text-green-900 font-bold'
-    }
-    return 'bg-gray-200'
-  }
-
-  const getDarkConsensusClass = (value) => {
-    if (value === 'Resistant') {
-      return 'bg-red-800 text-red-100 font-bold'
-    } else if (value === 'Susceptible') {
-      return 'bg-green-800 text-green-100 font-bold'
-    }
-    return 'bg-gray-600'
   }
 
   const getConfidenceColor = (confidence) => {
@@ -77,23 +38,14 @@ function ResultsTable({ data, darkMode }) {
         <table className="w-full text-xs">
           <thead>
             <tr className={`${darkMode ? 'bg-gray-700' : 'bg-gray-200'} border-b ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-              <th className={`px-2 py-2 text-left font-bold text-sm ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+              <th className={`px-4 py-3 text-left font-bold text-sm ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                 Antibiotic
               </th>
-              {models.map(model => (
-                <th
-                  key={model}
-                  className={`px-1 py-2 text-center font-bold text-xs ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}
-                  title={model}
-                >
-                  {getAbbreviation(model)}
-                </th>
-              ))}
-              <th className={`px-1 py-2 text-center font-bold text-xs ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                Result
+              <th className={`px-4 py-3 text-center font-bold text-sm ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                Prediction
               </th>
-              <th className={`px-1 py-2 text-center font-bold text-xs ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                Conf%
+              <th className={`px-4 py-3 text-center font-bold text-sm ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                Confidence %
               </th>
             </tr>
           </thead>
@@ -103,30 +55,19 @@ function ResultsTable({ data, darkMode }) {
                 key={idx}
                 className={`border-b ${darkMode ? 'border-gray-700 hover:bg-gray-750' : 'border-gray-200 hover:bg-gray-50'} transition-colors`}
               >
-                <td className={`px-2 py-2 font-semibold text-xs ${darkMode ? 'text-gray-100' : 'text-gray-800'} whitespace-nowrap`}>
+                <td className={`px-4 py-3 font-semibold text-sm ${darkMode ? 'text-gray-100' : 'text-gray-800'} whitespace-nowrap`}>
                   {row.antibiotic}
                 </td>
-                {models.map(model => (
-                  <td
-                    key={`${idx}-${model}`}
-                    className={`px-1 py-2 text-center ${
-                      darkMode ? getDarkCellClass(row[model]) : getCellClass(row[model])
-                    }`}
-                  >
-                    {row[model] === 'Resistant' ? '🔴' : '🟢'}
-                  </td>
-                ))}
-                <td
-                  className={`px-1 py-2 text-center text-xs font-semibold ${
-                    darkMode ? getDarkConsensusClass(row.consensus) : getConsensusClass(row.consensus)
-                  }`}
-                >
-                  {row.consensus === 'Resistant' ? '🔴' : '🟢'}
+                <td className={`px-4 py-3 text-center ${darkMode ? getDarkCellClass(row.prediction) : getCellClass(row.prediction)}`}>
+                  <span className="inline-flex items-center gap-2">
+                    {row.prediction === 'Resistant' ? '🔴' : '🟢'}
+                    {row.prediction}
+                  </span>
                 </td>
-                <td className={`px-1 py-2 text-center text-xs font-semibold ${
+                <td className={`px-4 py-3 text-center text-sm font-semibold ${
                   darkMode ? getDarkConfidenceColor(row.confidence) : getConfidenceColor(row.confidence)
                 }`}>
-                  {Math.round(row.confidence)}
+                  {Math.round(row.confidence)}%
                 </td>
               </tr>
             ))}
@@ -137,15 +78,15 @@ function ResultsTable({ data, darkMode }) {
       {/* Statistics */}
       <div className="grid grid-cols-2 gap-3">
         <div className={`p-3 rounded-lg text-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Votes</p>
+          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total</p>
           <p className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
-            Models Analyzed: {data.length * models.length}
+            Antibiotics: {data.length}
           </p>
         </div>
         <div className={`p-3 rounded-lg text-center ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Antibiotics</p>
+          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Model</p>
           <p className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
-            Analyzed: {data.length}
+            XGBoost
           </p>
         </div>
       </div>
@@ -164,7 +105,7 @@ function ResultsTable({ data, darkMode }) {
           </div>
         </div>
         <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'} mt-2`}>
-          Confidence shows agreement level across all 6 models (80%+ = high confidence)
+          Confidence score indicates probability of the prediction
         </p>
       </div>
     </div>

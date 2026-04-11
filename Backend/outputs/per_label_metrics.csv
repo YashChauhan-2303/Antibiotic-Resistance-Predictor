@@ -1,0 +1,61 @@
+Antibiotic,Model,Precision,Recall,F1,ROC-AUC,Threshold
+AMX/AMP,Logistic Regression,0.713,0.796,0.752,0.68,0.4
+AMX/AMP,Random Forest,0.708,0.813,0.757,0.678,0.4
+AMX/AMP,XGBoost,0.67,0.893,0.765,0.671,0.4
+AMX/AMP,SVM (Calibrated),0.672,0.893,0.767,0.68,0.4
+AMC,Logistic Regression,0.691,0.766,0.726,0.637,0.4
+AMC,Random Forest,0.68,0.811,0.74,0.642,0.4
+AMC,XGBoost,0.646,0.89,0.749,0.642,0.4
+AMC,SVM (Calibrated),0.636,0.916,0.751,0.637,0.4
+CZ,Logistic Regression,0.686,0.789,0.734,0.664,0.4
+CZ,Random Forest,0.675,0.82,0.74,0.673,0.4
+CZ,XGBoost,0.644,0.886,0.746,0.673,0.4
+CZ,SVM (Calibrated),0.637,0.89,0.742,0.664,0.4
+FOX,Logistic Regression,0.689,0.791,0.737,0.666,0.4
+FOX,Random Forest,0.682,0.813,0.742,0.659,0.4
+FOX,XGBoost,0.645,0.884,0.746,0.651,0.4
+FOX,SVM (Calibrated),0.657,0.886,0.754,0.665,0.4
+CTX/CRO,Logistic Regression,0.72,0.792,0.754,0.672,0.4
+CTX/CRO,Random Forest,0.71,0.811,0.757,0.675,0.4
+CTX/CRO,XGBoost,0.663,0.875,0.755,0.661,0.4
+CTX/CRO,SVM (Calibrated),0.676,0.87,0.761,0.672,0.4
+IPM,Logistic Regression,0.686,0.799,0.738,0.664,0.4
+IPM,Random Forest,0.669,0.832,0.742,0.684,0.4
+IPM,XGBoost,0.633,0.892,0.74,0.673,0.4
+IPM,SVM (Calibrated),0.627,0.9,0.739,0.663,0.4
+GEN,Logistic Regression,0.208,0.295,0.244,0.565,0.5
+GEN,Random Forest,0.238,0.31,0.269,0.564,0.5
+GEN,XGBoost,0.556,0.037,0.07,0.555,0.5
+GEN,SVM (Calibrated),0.0,0.0,0.0,0.569,0.5
+AN,Logistic Regression,0.264,0.335,0.295,0.556,0.5
+AN,Random Forest,0.278,0.316,0.296,0.562,0.5
+AN,XGBoost,0.364,0.013,0.024,0.573,0.5
+AN,SVM (Calibrated),0.0,0.0,0.0,0.555,0.5
+Acide nalidixique,Logistic Regression,0.165,0.774,0.273,0.576,0.5
+Acide nalidixique,Random Forest,0.171,0.407,0.241,0.596,0.5
+Acide nalidixique,XGBoost,0.0,0.0,0.0,0.599,0.5
+Acide nalidixique,SVM (Calibrated),0.0,0.0,0.0,0.576,0.5
+ofx,Logistic Regression,0.142,0.727,0.238,0.573,0.5
+ofx,Random Forest,0.157,0.415,0.228,0.59,0.5
+ofx,XGBoost,1.0,0.005,0.011,0.605,0.5
+ofx,SVM (Calibrated),0.0,0.0,0.0,0.573,0.5
+CIP,Logistic Regression,0.188,0.796,0.304,0.601,0.5
+CIP,Random Forest,0.226,0.528,0.316,0.655,0.5
+CIP,XGBoost,0.333,0.005,0.009,0.628,0.5
+CIP,SVM (Calibrated),0.0,0.0,0.0,0.6,0.5
+C,Logistic Regression,0.18,0.831,0.296,0.635,0.5
+C,Random Forest,0.194,0.483,0.276,0.637,0.5
+C,XGBoost,0.0,0.0,0.0,0.632,0.5
+C,SVM (Calibrated),0.0,0.0,0.0,0.636,0.5
+Co-trimoxazole,Logistic Regression,0.189,0.802,0.305,0.599,0.5
+Co-trimoxazole,Random Forest,0.193,0.462,0.273,0.616,0.5
+Co-trimoxazole,XGBoost,0.5,0.005,0.009,0.634,0.5
+Co-trimoxazole,SVM (Calibrated),0.0,0.0,0.0,0.599,0.5
+Furanes,Logistic Regression,0.178,0.804,0.291,0.62,0.5
+Furanes,Random Forest,0.181,0.497,0.265,0.632,0.5
+Furanes,XGBoost,0.167,0.005,0.01,0.623,0.5
+Furanes,SVM (Calibrated),0.0,0.0,0.0,0.622,0.5
+colistine,Logistic Regression,0.183,0.832,0.3,0.624,0.5
+colistine,Random Forest,0.188,0.455,0.266,0.64,0.5
+colistine,XGBoost,0.0,0.0,0.0,0.627,0.5
+colistine,SVM (Calibrated),0.0,0.0,0.0,0.624,0.5

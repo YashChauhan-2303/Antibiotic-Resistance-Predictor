@@ -1,0 +1,61 @@
+Model,Antibiotic,Optimised_Threshold
+Logistic Regression,AMX/AMP,0.4
+Logistic Regression,AMC,0.4
+Logistic Regression,CZ,0.4
+Logistic Regression,FOX,0.4
+Logistic Regression,CTX/CRO,0.4
+Logistic Regression,IPM,0.4
+Logistic Regression,GEN,0.5
+Logistic Regression,AN,0.5
+Logistic Regression,Acide nalidixique,0.5
+Logistic Regression,ofx,0.5
+Logistic Regression,CIP,0.5
+Logistic Regression,C,0.5
+Logistic Regression,Co-trimoxazole,0.5
+Logistic Regression,Furanes,0.5
+Logistic Regression,colistine,0.5
+Random Forest,AMX/AMP,0.4
+Random Forest,AMC,0.4
+Random Forest,CZ,0.4
+Random Forest,FOX,0.4
+Random Forest,CTX/CRO,0.4
+Random Forest,IPM,0.4
+Random Forest,GEN,0.5
+Random Forest,AN,0.5
+Random Forest,Acide nalidixique,0.5
+Random Forest,ofx,0.5
+Random Forest,CIP,0.5
+Random Forest,C,0.5
+Random Forest,Co-trimoxazole,0.5
+Random Forest,Furanes,0.5
+Random Forest,colistine,0.5
+XGBoost,AMX/AMP,0.4
+XGBoost,AMC,0.4
+XGBoost,CZ,0.4
+XGBoost,FOX,0.4
+XGBoost,CTX/CRO,0.4
+XGBoost,IPM,0.4
+XGBoost,GEN,0.5
+XGBoost,AN,0.5
+XGBoost,Acide nalidixique,0.5
+XGBoost,ofx,0.5
+XGBoost,CIP,0.5
+XGBoost,C,0.5
+XGBoost,Co-trimoxazole,0.5
+XGBoost,Furanes,0.5
+XGBoost,colistine,0.5
+SVM (Calibrated),AMX/AMP,0.4
+SVM (Calibrated),AMC,0.4
+SVM (Calibrated),CZ,0.4
+SVM (Calibrated),FOX,0.4
+SVM (Calibrated),CTX/CRO,0.4
+SVM (Calibrated),IPM,0.4
+SVM (Calibrated),GEN,0.5
+SVM (Calibrated),AN,0.5
+SVM (Calibrated),Acide nalidixique,0.5
+SVM (Calibrated),ofx,0.5
+SVM (Calibrated),CIP,0.5
+SVM (Calibrated),C,0.5
+SVM (Calibrated),Co-trimoxazole,0.5
+SVM (Calibrated),Furanes,0.5
+SVM (Calibrated),colistine,0.5

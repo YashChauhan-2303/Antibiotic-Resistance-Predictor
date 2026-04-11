@@ -1,167 +1,188 @@
-# 🚀 ResistAI – Multi-Model Antibiotic Resistance Predictor
+# Antibiotic Resistance Prediction System
 
-A full-stack machine learning web application that predicts antibiotic resistance (R/S) using multiple ML models and provides consensus-based recommendations for better clinical decision support.
+A machine learning-based web application that predicts antibiotic resistance patterns for bacterial infections using a single XGBoost multi-output model optimized with per-antibiotic thresholds.
 
-## 📸 User Interface
+## 🎯 Overview
 
-### Form & Input Screen
-![Antibiotic Resistance Predictor - Form](./screenshots/ui-form.png)
+- **Model**: XGBoost Multi-Output Classifier
+- **Target**: 15 antibiotics
+- **Input**: Patient data (age, gender, bacterial strain, comorbidities, infection frequency)
+- **Output**: Resistance prediction + confidence score for each antibiotic
+- **Architecture**: FastAPI backend + React Vite frontend
 
-### Results & Analysis Screen
-![Antibiotic Resistance Predictor - Results](./screenshots/ui-results.png)
+## 📋 Project Structure
 
----
-
-## 🧠 Project Overview
-ResistAI takes patient data as input and predicts whether a bacterial infection will be:
-* **Resistant (R)** ❌
-* **Susceptible (S)** ✅
-
-It covers **15 different antibiotics** using an ensemble of **6 machine learning models**.
-
-## ⚙️ Tech Stack
-### 🔹 Backend
-* **FastAPI**
-* **Scikit-learn / XGBoost**
-* **Pandas / NumPy**
-* **Joblib** (Model persistence)
-
-### 🔹 Frontend
-* **React (Vite)**
-* **Tailwind CSS**
-* **PostCSS**
-
-### 🔹 ML Models Used
-* Logistic Regression
-* Random Forest
-* Support Vector Machine (SVM)
-* XGBoost (per antibiotic)
-* Bagging Classifier
-* AdaBoost
-
-## 📊 Features
-* 🔮 **Multi-Antibiotic Prediction**: Predict resistance for 15 drugs at once.
-* 🤖 **Ensemble Logic**: Uses 6 ML models simultaneously.
-* 🧠 **Consensus System**: Final results based on model agreement.
-* 📈 **Confidence Scoring**: Reliability per antibiotic.
-* 💡 **Clinical Recommendations**: Highlights Susceptible (✅) options.
-* 📥 **Data Portability**: Download results for clinical review.
-
-## 🧪 Input Parameters
-The model processes 7 patient features:
-1.  **Age**
-2.  **Gender**
-3.  **Bacterial Strain** (Species)
-4.  **Diabetes**
-5.  **Hypertension**
-6.  **Previous Hospitalization**
-7.  **Infection Frequency**
-
-## 📁 Project Structure
-```text
-ML HOSTING/
-├── Backend/                # FastAPI Application
-│   ├── main.py             # API Entry point
-│   ├── model_loader.py     # Model loading logic
-│   ├── utils.py            # Helper functions
-│   ├── schemas.py          # Pydantic data models
-│   ├── config.py           # Environment configurations
-│   ├── all_models.joblib   # Serialized ML models
-│   ├── Dockerfile          # Backend containerization
+```
+.
+├── Backend/                 # FastAPI application
+│   ├── main.py             # API routes and endpoints
+│   ├── model_loader.py     # Model loading & caching
+│   ├── utils.py            # Prediction logic
+│   ├── schemas.py          # Pydantic models (request/response)
+│   ├── config.py           # Configuration settings
+│   ├── model_small.joblib  # Trained XGBoost model
 │   └── requirements.txt    # Python dependencies
-├── Frontend/               # React + Vite Application
-│   ├── src/                # UI Components & Logic
-│   ├── tailwind.config.js  # Styling configuration
-│   ├── Dockerfile          # Frontend containerization
+│
+├── Frontend/               # React Vite application
+│   ├── src/
+│   │   ├── App.jsx         # Main app component
+│   │   ├── components/     # React components
+│   │   └── index.css       # Styling (Tailwind)
 │   └── package.json        # Node dependencies
-├── Model/                  # Data Science & Training
-│   ├── ml_project2.py      # Training/Experimental script
-│   └── cleaned_output.csv  # Processed dataset
-└── docker-compose.yml      # Multi-container orchestration
+│
+└── Model/                  # Jupyter notebooks & training data
 ```
 
-## ⚡ Running Locally
+## 🚀 Quick Start
 
-### 🔹 Backend
+### Prerequisites
+- Python 3.9+ 
+- Node.js 16+
+
+### Backend Setup
 
 ```bash
 cd Backend
 python -m venv venv
-source venv/bin/activate  # venv\Scripts\activate on Windows
+venv\Scripts\activate          # Windows
+source venv/bin/activate       # macOS/Linux
+
 pip install -r requirements.txt
-uvicorn main:app --reload
+
+# Start API server
+python main.py
+# Server runs on http://127.0.0.1:8000
 ```
 
-**Backend runs on:** `http://127.0.0.1:8000`
-
-### 🔹 Frontend
+### Frontend Setup
 
 ```bash
 cd Frontend
 npm install
 npm run dev
+# App runs on http://127.0.0.1:5173
 ```
 
-**Frontend runs on:** `http://127.0.0.1:5173`
+## 📊 Model Details
 
-### 🔹 Using Docker
+**File**: `Backend/model_small.joblib`
+
+**Contents**:
+```python
+{
+    "preprocessor": <sklearn.preprocessing.Pipeline>,
+    "model": <xgboost.XGBMultiOutput>,
+    "thresholds": [0.42, 0.55, 0.48, ...]  # 15 thresholds (one per antibiotic)
+}
+```
+
+**Antibiotics** (15 total):
+AMX/AMP, AMC, CZ, FOX, CTX/CRO, IPM, GEN, AN, Acide nalidixique, ofx, CIP, C, Co-trimoxazole, Furanes, colistine
+
+## 🔌 API Endpoints
+
+### Health Check
+```
+GET /api/v1/health
+```
+Response: Model loaded status, environment, version
+
+### Predict
+```
+POST /api/v1/predict
+```
+
+**Request**:
+```json
+{
+  "Age": 45.5,
+  "Gender": "M",
+  "Souches": "Escherichia coli",
+  "Diabetes": "Yes",
+  "Hypertension": "No",
+  "Hospital_before": "Yes",
+  "Infection_Freq": 2
+}
+```
+
+**Response**:
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "antibiotic": "AMX/AMP",
+      "prediction": "Resistant",
+      "confidence": 82.5
+    },
+    ...
+  ],
+  "summary": {
+    "total_antibiotics": 15,
+    "resistant_count": 7,
+    "susceptible_count": 8,
+    "resistant_percentage": 46.7,
+    "susceptible_percentage": 53.3,
+    "recommended_antibiotics": ["AMC", "CIP", "CZ"]
+  },
+  "timestamp": "2026-04-11T12:08:14.852Z"
+}
+```
+
+### API Info
+```
+GET /api/v1/info
+```
+Returns: Model type, available antibiotics, input field descriptions
+
+## ⚙️ Configuration
+
+Edit `Backend/.env`:
+```
+ENVIRONMENT=development
+MODEL_PATH=model_small.joblib
+FRONTEND_URL=http://127.0.0.1:5173
+LOG_LEVEL=INFO
+```
+
+## 🎨 Frontend Features
+
+- **Dark/Light Mode**: Toggle theme
+- **Real-time Health Check**: API connectivity status
+- **Patient Input Form**: 7 input fields with validation
+- **Results Table**: Antibiotic predictions with confidence scores
+- **Summary Card**: Resistant/susceptible counts + recommendations
+- **Download Results**: Export predictions as JSON
+- **Responsive Design**: Works on desktop and mobile
+
+## 📈 Prediction Logic
+
+For each antibiotic:
+1. Preprocess patient data using fitted preprocessor
+2. Get probability from XGBoost estimator: `predict_proba()[0][1]`
+3. Apply threshold: `prediction = prob >= threshold`
+4. Confidence = probability × 100
+
+## 🛠️ Development
+
+### Backend Tests
+```bash
+cd Backend
+python test.py
+```
+
+### Logs
+- Backend logs: `Backend/logs/app.log`
+- Console output shows startup/prediction info
+
+## 📝 Important Notes
+
+⚠️ **Clinical Disclaimer**: Predictions are based on historical resistance patterns. Always consult healthcare professionals for clinical decisions.
+
+⚠️ **Model Accuracy**: Evaluate model performance on your specific dataset before deployment.
+
+## 🔄 Docker Deployment
 
 ```bash
-docker-compose up --build
+docker-compose up
 ```
-
-**Compose deploys both services automatically.**
-
----
-
-## ⚠️ Important Notes
-
-### Clinical Disclaimer
-⚠️ **Predictions are influenced by historical antibiotic resistance patterns.** Clinical decisions should always be made in consultation with healthcare professionals. This is a decision support tool, not a replacement for professional medical judgment.
-
-### Data Bias
-Predictions may be influenced by historical dataset patterns. Some antibiotics may show bias due to class imbalance in training data.
-
-### Model Confidence
-Confidence scores indicate agreement among the 6 models. Higher confidence (>80%) suggests stronger consensus.
-
----
-
-## 🚀 Production Deployment
-
-### Option 1: Render.com (Recommended)
-1. Connect your GitHub repository
-2. Deploy Backend as a Web Service
-3. Deploy Frontend as a Static Site
-4. Set required environment variables
-
-### Option 2: Docker
-
-```bash
-docker build -t antibiotic-api:1.0.0 ./Backend
-docker run -p 8000:8000 antibiotic-api:1.0.0
-```
-
----
-
-## 🔒 Security
-
-- ✅ Input validation with Pydantic
-- ✅ Environment-based configuration
-- ✅ Error handling (no stack traces in production)
-- ✅ CORS configured for frontend
-- ✅ No hardcoded secrets
-- ✅ Production logging with rotation
-
----
-
-## 📊 Performance
-
-- **Model Loading:** Pre-loaded at startup (~3-5s)
-- **Prediction Time:** 100-500ms per request
-- **Scalability:** Stateless, ready for load balancing
-- **Caching:** Models cached in memory
-
----
-
-**Status:** ✅ Production Ready

@@ -24,7 +24,7 @@ class Settings:
     ]
 
     # Model
-    MODEL_PATH = os.getenv("MODEL_PATH", "all_models.joblib")
+    MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(os.path.dirname(__file__), "model_small.joblib"))
 
     # Logging
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

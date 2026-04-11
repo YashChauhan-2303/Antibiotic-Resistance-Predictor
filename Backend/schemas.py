@@ -45,19 +45,8 @@ class AntibioticPrediction(BaseModel):
     """Schema for single antibiotic prediction"""
 
     antibiotic: str
-    Logistic_Regression: str = Field(alias="Logistic Regression")
-    Random_Forest: str = Field(alias="Random Forest")
-    SVM: str
-    XGBoost: str
-    Bagging: str
-    AdaBoost: str
-    consensus: str = Field(..., description="Consensus prediction from all models")
+    prediction: str = Field(..., description="Prediction result (Resistant or Susceptible)")
     confidence: float = Field(..., ge=0, le=100, description="Confidence percentage (0-100)")
-    resistant_votes: int = Field(..., ge=0, le=6, description="Number of models predicting Resistant")
-    susceptible_votes: int = Field(..., ge=0, le=6, description="Number of models predicting Susceptible")
-
-    class Config:
-        populate_by_name = True
 
 
 class PredictionSummary(BaseModel):

@@ -1,0 +1,5 @@
+Model,Macro-F1,Weighted-F1,Hamming Loss
+Logistic Regression,0.4659,0.6157,0.4256
+Random Forest,0.4604,0.617,0.3344
+XGBoost,0.309,0.5505,0.2297
+SVM (Calibrated),0.3009,0.5474,0.2287

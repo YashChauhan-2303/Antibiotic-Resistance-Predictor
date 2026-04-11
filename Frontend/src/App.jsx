@@ -204,7 +204,7 @@ function App() {
         <div className={`mt-12 p-6 rounded-lg ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-blue-50 border border-blue-200'}`}>
           <h3 className="text-lg font-bold mb-3">ℹ️ About the System</h3>
           <p className={`${darkMode ? 'text-gray-300' : 'text-gray-700'} text-sm leading-relaxed`}>
-            This prediction system uses an ensemble of 6 machine learning models (Logistic Regression, Random Forest, SVM, XGBoost, Bagging, and AdaBoost) trained on antibiotic resistance patterns. Each model independently predicts resistance for 15 different antibiotics. Results are shown with individual model predictions and a consensus prediction based on majority voting. Confidence scores indicate model agreement.
+            This prediction system uses a single XGBoost multi-output machine learning model trained on antibiotic resistance patterns. The model is optimized with per-antibiotic thresholds to predict resistance for 15 different antibiotics with high accuracy. Results are shown with individual predictions and confidence scores that reflect the model's certainty.
           </p>
           <p className={`mt-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'} text-sm italic`}>
             ⚠️ Predictions are influenced by historical antibiotic resistance patterns. Clinical decisions should always be made in consultation with healthcare professionals.

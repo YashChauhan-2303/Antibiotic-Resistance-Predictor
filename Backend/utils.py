@@ -23,82 +23,44 @@ ANTIBIOTIC_COLS = [
 ]
 
 
-def get_consensus_prediction(predictions: dict, antibiotic_idx: int):
-    votes = []
-
-    for model_name, preds in predictions.items():
-        value = preds[antibiotic_idx]
-
-        # Fix nested/array values
-        if isinstance(value, np.ndarray):
-            value = value.item()
-
-        votes.append(int(value))
-
-    resistant_count = sum(votes)
-    susceptible_count = len(votes) - resistant_count
-
-    if resistant_count == susceptible_count:
-        consensus = "Uncertain"
-    else:
-        consensus = "Resistant" if resistant_count > susceptible_count else "Susceptible"
-
-    confidence = abs(resistant_count - susceptible_count) / len(votes)
-
-    return {
-        "consensus": consensus,
-        "confidence": round(confidence * 100, 1),
-        "resistant_votes": resistant_count,
-        "susceptible_votes": susceptible_count,
-    }
-
-
-def predict_all_models(new_patient: dict):
-    """Make predictions using all loaded models"""
+def predict_xgboost(new_patient: dict):
+    """Make predictions using single XGBoost multi-output model"""
     try:
         logger.info(f"Making prediction for patient: Age={new_patient.get('Age')}, Gender={new_patient.get('Gender')}")
 
-        # Get models
-        models = model_loader.get_models()
-        preprocessor = models["preprocessor"]
-        lr_model = models["lr"]
-        rf_model = models["rf"]
-        svm_model = models["svm"]
-        xgb_estimators = models["xgb_estimators"]
-        bag_model = models["bag"]
-        ada_model = models["ada"]
+        # Get model data
+        model_data = model_loader.get_models()
+        preprocessor = model_data["preprocessor"]
+        xgb_model = model_data["model"]
+        thresholds = model_data["thresholds"]
 
         # Preprocess input
         sample = pd.DataFrame([new_patient])
         X_pp = preprocessor.transform(sample)
 
-        # Get predictions from all models
-        model_preds = {
-            "Logistic Regression": lr_model.predict(X_pp)[0],
-            "Random Forest": rf_model.predict(X_pp)[0],
-            "SVM": svm_model.predict(X_pp)[0],
-            "XGBoost": np.array([est.predict(X_pp)[0] for est in xgb_estimators]),
-            "Bagging": bag_model.predict(X_pp)[0],
-            "AdaBoost": ada_model.predict(X_pp)[0],
-        }
-
-        # Format results
+        # Make predictions for each antibiotic using the multi-output model
         result = []
-        for ab in ANTIBIOTIC_COLS:
-            idx = ANTIBIOTIC_COLS.index(ab)
-            row = {"antibiotic": ab}
+        for idx, antibiotic in enumerate(ANTIBIOTIC_COLS):
+            # Get the estimator for this antibiotic
+            estimator = xgb_model.estimators_[idx]
+            
+            # Get probability of positive class (resistant)
+            proba = estimator.predict_proba(X_pp)
+            prob_resistant = proba[0][1]  # Probability of class 1 (resistant)
+            
+            # Apply threshold to get binary prediction
+            threshold = thresholds[idx]
+            prediction = 1 if prob_resistant >= threshold else 0
+            prediction_label = "Resistant" if prediction == 1 else "Susceptible"
+            
+            # Confidence is the probability value, scaled to percentage
+            confidence = prob_resistant * 100 if prediction == 1 else (1 - prob_resistant) * 100
 
-            # Individual model predictions
-            for model_name, preds in model_preds.items():
-                row[model_name] = "Resistant" if preds[idx] == 1 else "Susceptible"
-
-            # Consensus prediction
-            consensus = get_consensus_prediction(model_preds, idx)
-            row["consensus"] = consensus["consensus"]
-            row["confidence"] = consensus["confidence"]
-            row["resistant_votes"] = consensus["resistant_votes"]
-            row["susceptible_votes"] = consensus["susceptible_votes"]
-
+            row = {
+                "antibiotic": antibiotic,
+                "prediction": prediction_label,
+                "confidence": round(confidence, 1)
+            }
             result.append(row)
 
         logger.info(f"✓ Prediction completed successfully for {len(result)} antibiotics")

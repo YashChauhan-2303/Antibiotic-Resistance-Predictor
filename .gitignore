@@ -1,5 +1,4 @@
 # Backend
-Backend/all_models.joblib
 __pycache__/
 *.py[cod]
 *$py.class
@@ -15,7 +14,7 @@ build/
 .env
 .env.local
 app.log
-*.joblib
+# *.joblib
 .DS_Store
 
 # Frontend

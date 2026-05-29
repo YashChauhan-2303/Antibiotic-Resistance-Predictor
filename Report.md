@@ -7,7 +7,48 @@ This document details the medical background, machine learning architecture, val
 ## 🎯 Project Vision & Medical Utility
 Antibiotic resistance is one of the top global public health threats of our century. When a patient presents with a bacterial infection (e.g., severe Urinary Tract Infection or Bacteremia), the standard clinical workflow requires taking a culture and waiting **48 to 72 hours** for a clinical microbiology lab to report susceptibility. In the interim, physicians must prescribe **empirical antibiotic therapy** based on statistical averages, which frequently leads to treatment failures or the over-prescription of broad-spectrum reserve drugs (e.g., Carbapenems), driving further resistance.
 
-This project delivers a **clinical decision support system** designed to bridge this 72-hour window. By engineering patient-specific risk profiles and bacterial strain prevalence in real-time, the system leverages **15 independent XGBoost machine learning pipelines** with localized **SHAP (Shapley Additive exPlanations)** TreeExplainers to predict susceptibility profiles instantly, enabling targeted empirical therapy selection.
+This project delivers a **clinical decision support system** designed to bridge this 72-hour window. 
+
+The project progressed through a rigorous two-phase cycle:
+1. **Clinical Model Research (Phase 1)**: Evaluated four distinct algorithms—Logistic Regression, Random Forest, Calibrated SVMs, and XGBoost—across multiple validation metrics (ROC-AUC, Precision, Recall, F1, F2) to establish the most clinically robust classifier archetype.
+2. **Production Deployment (Phase 2)**: Deployed **15 independent, pre-trained XGBoost pipelines** mapped to optimized decision thresholds and linked to real-time localized **SHAP (Shapley Additive exPlanations)** TreeExplainers.
+
+---
+
+## 📊 Model Selection Process
+
+The development cycle traced a professional machine learning workflow:
+
+```text
+Research Phase (Data Preparation & Cohort Isolation)
+       ↓
+Train Logistic Regression (Linear Baseline)
+       ↓
+Train Random Forest (Non-Linear Tree Ensemble)
+       ↓
+Train Calibrated Support Vector Machine (Probability-calibrated SVM)
+       ↓
+Train XGBoost (Gradient-Boosted Tree Ensemble)
+       ↓
+Compare Evaluation Metrics (ROC-AUC, F1, and F2-Scores)
+       ↓
+Select Best Performing Architecture (XGBoost wins overall)
+       ↓
+Optimize Decision Thresholds (Recall-constrained search)
+       ↓
+Deploy Final 15 Specialized Models to Production
+```
+
+---
+
+## 🔬 Why XGBoost Was Selected
+
+XGBoost was ultimately chosen as the single production architecture due to its superior clinical and operational performance:
+1. **Strongest Overall Performance**: Handled non-linear interactions between demographic fields and strain prevalence far better than Logistic Regression or SVMs.
+2. **Consistent Results Across Strains**: Maintained robust, stable predictive metrics across all 15 diverse antibiotic classes, dealing naturally with the high class imbalance of secondary experimental targets.
+3. **Optimized Class Imbalance Support**: Enabled native, direct balancing using the `scale_pos_weight` parameter, adjusting training loss directly according to target ratios.
+4. **Superior Explainability Compatibility**: Integrated seamlessly with the **SHAP TreeExplainer** package, which leverages exact tree structures to compute local patient attributions in milliseconds, whereas kernel-based SVM or Logistic Regression explainers are slow or structurally constrained.
+5. **Production Suitability**: Highly portable, fast inference footprints (<10ms per pipeline), and natively supported by standard python serialization tools (`joblib`).
 
 ---
 

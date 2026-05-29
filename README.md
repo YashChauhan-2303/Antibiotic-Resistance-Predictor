@@ -4,10 +4,66 @@ A production-ready Explainable AI (XAI) clinical decision support system that pr
 
 ---
 
-## 🎯 Architectural Overview
+## 🎯 Architectural Overview & Development Phases
 
-- **Core Machine Learning System**: 15 independent, specialized XGBoost classification pipelines (trained with optimized preprocessors, imputers, and encoders).
-- **Explainability Engine**: Integrated local SHAP (Shapley Additive exPlanations) TreeExplainer, computing exact patient-specific feature attribution contributions in real-time.
+This project was developed in two distinct, comprehensive phases:
+
+### Phase 1 — Clinical Model Research (Comparative ML Study)
+During the initial research and experimentation phase, we evaluated multiple machine learning algorithms on our patient cohort to identify the best architecture for predicting susceptibility:
+- **Logistic Regression**: Linear baseline to measure standard feature significance.
+- **Random Forest**: Tree-ensemble baseline to check non-linear feature split dynamics.
+- **Calibrated Support Vector Machines (SVM)**: Constructed using a `LinearSVC` base wrapped in `CalibratedClassifierCV` for reliable probability outputs.
+- **Extreme Gradient Boosting (XGBoost)**: Gradient-boosted tree ensemble with dynamic class imbalance weighting (`scale_pos_weight`).
+
+All algorithms were systematically compared across key clinical metrics: **ROC-AUC, Precision, Recall, F1-Score, and F2-Score** (to weigh recall/sensitivity and avoid dangerous false negatives).
+
+### Phase 2 — Production Deployment
+Following a comprehensive metric-based comparison, **XGBoost** was selected as the superior production architecture. The deployed end-to-end system consists of:
+- **15 Independent XGBoost Pipelines**: Each specialized and trained serially for one target antibiotic.
+- **Optimized Decision Thresholds**: Customized cutoffs tuned per-model to ensure maximum clinical sensitivity.
+- **Explainability Engine**: SHAP TreeExplainer rendering real-time local attributions.
+- **Full-Stack Suite**: Python FastAPI backend and a React Vite frontend styled with premium glassmorphism.
+
+---
+
+## 📊 Model Selection Process
+
+The project followed a rigorous engineering path from raw dataset analysis to final server deployment:
+
+```text
+Research Phase (Data Preparation & Cohort Isolation)
+       ↓
+Train Logistic Regression (Linear Baseline)
+       ↓
+Train Random Forest (Non-Linear Tree Ensemble)
+       ↓
+Train Calibrated Support Vector Machine (Probability-calibrated SVM)
+       ↓
+Train XGBoost (Gradient-Boosted Tree Ensemble)
+       ↓
+Compare Evaluation Metrics (ROC-AUC, F1, and F2-Scores)
+       ↓
+Select Best Performing Architecture (XGBoost wins overall)
+       ↓
+Optimize Decision Thresholds (Recall-constrained search)
+       ↓
+Deploy Final 15 Specialized Models to Production
+```
+
+---
+
+## 🔬 Why XGBoost Was Selected
+
+XGBoost was ultimately chosen as the single production architecture due to its superior clinical and operational performance:
+1. **Strongest Overall Performance**: Handled non-linear interactions between demographic fields and strain prevalence far better than Logistic Regression or SVMs.
+2. **Consistent Results Across Strains**: Maintained robust, stable predictive metrics across all 15 diverse antibiotic classes, dealing naturally with the high class imbalance of secondary experimental targets.
+3. **Optimized Class Imbalance Support**: Enabled native, direct balancing using the `scale_pos_weight` parameter, adjusting training loss directly according to target ratios.
+4. **Superior Explainability Compatibility**: Integrated seamlessly with the **SHAP TreeExplainer** package, which leverages exact tree structures to compute local patient attributions in milliseconds, whereas kernel-based SVM or Logistic Regression explainers are slow or structurally constrained.
+5. **Production Suitability**: Highly portable, fast inference footprints (<10ms per pipeline), and natively supported by standard python serialization tools (`joblib`).
+
+---
+
+## ⚙️ Deployed Architectural Spec
 - **Decision Tiering**:
   - **🛡️ Production Tier**: 6 high-performing beta-lactam models (ROC-AUC ≥ 0.64, Optimized F1 ≥ 0.70) — `IPM`, `AMX/AMP`, `CZ`, `CTX/CRO`, `FOX`, `AMC`.
   - **🔬 Experimental Tier**: 9 secondary models preserved for research/investigative clinical support — `GEN`, `AN`, `Acide nalidixique`, `ofx`, `CIP`, `C`, `Co-trimoxazole`, `Furanes`, `colistine`.

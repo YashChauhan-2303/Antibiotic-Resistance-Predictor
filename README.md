@@ -24,80 +24,51 @@ Following a comprehensive metric-based comparison, **XGBoost** was selected as t
 - **Explainability Engine**: SHAP TreeExplainer rendering real-time local attributions.
 - **Full-Stack Suite**: Python FastAPI backend and a React Vite frontend styled with premium glassmorphism.
 
-### 🌐 SaaS-Style System Architecture
+### 🌐 Production System Architecture
 
 ```mermaid
 graph TD
-    %% Colors and Styles
     classDef client fill:#2563eb,stroke:#1d4ed8,stroke-width:2px,color:#fff;
-    classDef server fill:#059669,stroke:#047857,stroke-width:2px,color:#fff;
-    classDef logic fill:#d97706,stroke:#b45309,stroke-width:2px,color:#fff;
-    classDef prod fill:#dc2626,stroke:#b91c1c,stroke-width:2px,color:#fff;
-    classDef exp fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#fff;
+    classDef backend fill:#059669,stroke:#047857,stroke-width:2px,color:#fff;
+    classDef ml fill:#7c3aed,stroke:#6d28d9,stroke-width:2px,color:#fff;
     classDef explain fill:#0891b2,stroke:#0e7490,stroke-width:2px,color:#fff;
 
-    subgraph ClientLayer ["Client Presentation Layer (React Frontend)"]
-        Dashboard["React Frontend Dashboard<br>(Frosted-Glass UI)"]:::client
-        PatientForm["Patient Diagnostics Form<br>(Demographics Input)"]:::client
-        ResultsScreen["Clinical Recommendation UI<br>(Production vs Research Tiers)"]:::client
+    subgraph ClientLayer ["Frontend User Interface (React)"]
+        Dashboard["Interactive Clinical Dashboard"]:::client
+        PatientInput["Patient Clinical Data Input"]:::client
+        Recommendations["Treatment Recommendations"]:::client
     end
 
-    subgraph ServerLayer ["Service Application Layer (FastAPI Backend)"]
-        API["FastAPI API Gateway<br>(Pydantic Schema Validation)"]:::server
-        HealthChecker["Extended Health Monitor<br>(Pipeline Cache Status)"]:::server
+    subgraph ServerLayer ["Backend Application Service (FastAPI)"]
+        Gateway["FastAPI API Gateway"]:::backend
+        FeatureEng["Clinical Feature Engineering<br>(7 Custom Risk Scores Computed)"]:::backend
     end
 
-    subgraph LogicLayer ["Clinical Computation Engine (Python Utilities)"]
-        FE["Feature Engineering Layer<br>(Computes 7 Custom Clinical Indicators)"]:::logic
-        PredictEngine["Decision Engine<br>(Computes Raw Resistance Probability)"]:::logic
-        ThresholdLayer["Optimized Threshold Evaluator<br>(F1-Score Tuned Cutoffs)"]:::logic
-        SHAPEngine["Explainability Engine<br>(shap.TreeExplainer Local Attributions)"]:::logic
+    subgraph MLLayer ["Machine Learning Pipelines (XGBoost)"]
+        ProdModels["🛡️ Deployed Production Models<br>(6 High-Performance Classifiers)"]:::ml
+        ExpModels["🔬 Investigative Research Models<br>(9 Secondary Classifiers)"]:::ml
+        Thresholds["⚖️ Recall-Constrained Thresholds<br>(Per-Antibiotic Cutoffs Applied)"]:::ml
     end
 
-    subgraph PipelineLayer ["Multi-Model Pipeline Architecture (XGBoost Pipelines)"]
-        subgraph ProdTier ["🛡️ Clinical Production Models (ROC-AUC >= 0.64, F1 >= 0.70)"]
-            M_IPM["Imipenem (IPM)"]:::prod
-            M_AMX["Amoxicillin/Ampicillin (AMX/AMP)"]:::prod
-            M_CZ["Cefazolin (CZ)"]:::prod
-            M_FOX["Cefoxitin (FOX)"]:::prod
-            M_CTX["Cefotaxime/Ceftriaxone (CTX/CRO)"]:::prod
-            M_AMC["Amoxicillin/Clavulanic Acid (AMC)"]:::prod
-        end
-
-        subgraph ExpTier ["🔬 Experimental Research Models (Secondary/Investigation)"]
-            M_GEN["Gentamicin (GEN)"]:::exp
-            M_AN["Amikacin (AN)"]:::exp
-            M_NAL["Nalidixic Acid (Acide nalidixique)"]:::exp
-            M_OFX["Ofloxacin (ofx)"]:::exp
-            M_CIP["Ciprofloxacin (CIP)"]:::exp
-            M_C["Chloramphenicol (C)"]:::exp
-            M_COT["Co-trimoxazole"]:::exp
-            M_FUR["Nitrofurantoin (Furanes)"]:::exp
-            M_COL["Colistin (colistine)"]:::exp
-        end
+    subgraph ExplainLayer ["Explainable AI (SHAP Engine)"]
+        SHAP["SHAP TreeExplainer<br>(Local Feature Attributions)"]:::explain
     end
 
     %% Data Flow
-    PatientForm -->|"Raw Diagnostics Payload"| API
-    API --> FE
-    FE -->|"14-Column Ordered Dataframe"| PredictEngine
+    PatientInput -->|"1. Submit Profile"| Gateway
+    Gateway -->|"2. Process Features"| FeatureEng
+    FeatureEng -->|"3. Vector Inference"| ProdModels
+    FeatureEng -->|"3. Vector Inference"| ExpModels
     
-    %% Predict Engine queries the models
-    PredictEngine -->|"predict_proba()"| ProdTier
-    PredictEngine -->|"predict_proba()"| ExpTier
+    ProdModels -->|"4. Probability Outputs"| Thresholds
+    ExpModels -->|"4. Probability Outputs"| Thresholds
     
-    ProdTier -->|"Raw Probabilities"| ThresholdLayer
-    ExpTier -->|"Raw Probabilities"| ThresholdLayer
-    
-    ThresholdLayer -->|"Susceptible vs Resistant Classifications"| ResultsScreen
-    
-    %% SHAP calculations
-    PredictEngine -->|"Fitted Tree Structures"| SHAPEngine
-    SHAPEngine -->|"Top Positive/Negative Attributions"| ResultsScreen
-
-    %% Health Monitor
-    HealthChecker -.->|"Cached joblib status check"| API
+    Thresholds -->|"5. Binary Classifications"| Recommendations
+    FeatureEng -.->|"6. Compute SHAP Values"| SHAP
+    SHAP -.->|"7. Dynamic attributions"| Recommendations
+    Recommendations -->|"8. Visual Dashboard rendering"| Dashboard
 ```
+*Caption: Deployed end-to-end production architecture, illustrating clinical feature engineering, parallel multi-model XGBoost predictions, recall-constrained decision thresholding, and localized SHAP attribution mapping.*
 
 ---
 
@@ -105,25 +76,27 @@ graph TD
 
 The project followed a rigorous engineering path from raw dataset analysis to final server deployment:
 
-```text
-Research Phase (Data Preparation & Cohort Isolation)
-       ↓
-Train Logistic Regression (Linear Baseline)
-       ↓
-Train Random Forest (Non-Linear Tree Ensemble)
-       ↓
-Train Calibrated Support Vector Machine (Probability-calibrated SVM)
-       ↓
-Train XGBoost (Gradient-Boosted Tree Ensemble)
-       ↓
-Compare Evaluation Metrics (ROC-AUC, F1, and F2-Scores)
-       ↓
-Select Best Performing Architecture (XGBoost wins overall)
-       ↓
-Optimize Decision Thresholds (Recall-constrained search)
-       ↓
-Deploy Final 15 Specialized Models to Production
+```mermaid
+graph TD
+    classDef step fill:#2563eb,stroke:#1d4ed8,stroke-width:2px,color:#fff;
+    classDef start fill:#059669,stroke:#047857,stroke-width:2px,color:#fff;
+    classDef highlight fill:#d97706,stroke:#b45309,stroke-width:2px,color:#fff;
+    
+    Data["📊 Clinical Isolate Dataset"]:::start
+    Data --> LR["1. Logistic Regression Baseline"]:::step
+    Data --> RF["2. Random Forest Baseline"]:::step
+    Data --> SVM["3. Calibrated SVM Model"]:::step
+    Data --> XGB["4. Class-Weighted XGBoost"]:::step
+    
+    LR --> Comp["🔄 Comparative Metric Evaluation<br>(ROC-AUC, F1, F2-Score)"]:::highlight
+    RF --> Comp
+    SVM --> Comp
+    XGB --> Comp
+    
+    Comp --> Select["👑 XGBoost Wins Architecture Selection"]:::highlight
+    Select --> Deploy["🛡️ Deploy 15 Specialized Models"]:::start
 ```
+*Caption: The iterative machine learning research journey, comparing baseline, non-linear ensemble, and probability-calibrated architectures to select the optimal model pipeline.*
 
 ---
 

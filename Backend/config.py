@@ -24,7 +24,6 @@ class Settings:
     ]
 
     # Model
-    MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(os.path.dirname(__file__), "model_small.joblib"))
     MODELS_ROOT = os.getenv("MODELS_ROOT", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models")))
 
 

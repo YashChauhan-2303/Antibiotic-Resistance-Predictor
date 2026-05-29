@@ -118,6 +118,21 @@ def predict_xgboost(new_patient: dict, explain: bool = False):
         ]
         sample = pd.DataFrame([engineered_patient])[features_ordered]
 
+        # Add Debug Logging
+        print("Prediction DataFrame:")
+        print(sample)
+        print("\nColumn Types:")
+        print(sample.dtypes)
+
+        # Verify Training Compatibility
+        expected_columns = [
+            "Age", "Gender", "Souches", "Diabetes", "Hypertension", "Hospital_before", "Infection_Freq",
+            "Age_Group", "Comorbidity_Score", "Hospital_Risk", "Frequent_Infection", "High_Risk_Patient",
+            "Strain_Frequency", "Risk_Score"
+        ]
+        columns_match = list(sample.columns) == expected_columns
+        print(f"\nTraining Compatibility Verified: {columns_match}\n")
+
         result = []
         for antibiotic in ANTIBIOTIC_COLS:
             if antibiotic not in pipelines:
@@ -132,16 +147,16 @@ def predict_xgboost(new_patient: dict, explain: bool = False):
             prob_resistant = float(pipeline.predict_proba(sample)[0][1])
             prediction_label = "Resistant" if prob_resistant >= threshold else "Susceptible"
 
-            # Confidence percentage scaled relative to predictions
-            confidence_pct = prob_resistant * 100 if prediction_label == "Resistant" else (1 - prob_resistant) * 100
-            
             # Confidence Tier Classification System
-            if confidence_pct >= 80.0:
-                confidence_tier = "High"
-            elif confidence_pct >= 60.0:
-                confidence_tier = "Medium"
+            if prob_resistant > 0.80 or prob_resistant < 0.20:
+                confidence = "High"
+            elif (0.60 <= prob_resistant <= 0.80) or (0.20 <= prob_resistant <= 0.40):
+                confidence = "Medium"
             else:
-                confidence_tier = "Low"
+                confidence = "Low"
+
+            # Model Tier (Capitalized)
+            model_tier_cap = "Production" if tier.lower() == "production" else "Experimental"
 
             # Compute local SHAP explanation if requested
             explanation_data = None
@@ -174,22 +189,22 @@ def predict_xgboost(new_patient: dict, explain: bool = False):
 
                     explanation_data = {
                         "top_positive_factors": [f["feature"] for f in factors if f["direction"] == "positive"][:3],
-                        "top_negative_factors": [f["feature"] for f in factors if f["direction"] == "negative"][:3],
-                        "detailed_shapley_impacts": factors[:8]
+                        "top_negative_factors": [f["feature"] for f in factors if f["direction"] == "negative"][:3]
                     }
                 except Exception as shap_err:
                     logger.error(f"Failed to generate SHAP explanation for '{antibiotic}': {shap_err}")
                     explanation_data = {
-                        "error": f"SHAP generation error: {str(shap_err)}"
+                        "top_positive_factors": [],
+                        "top_negative_factors": []
                     }
 
             row = {
                 "antibiotic": antibiotic,
                 "prediction": prediction_label,
-                "confidence": round(confidence_pct, 1),
-                "confidence_tier": confidence_tier,
-                "model_tier": tier,
-                "probability": round(prob_resistant, 3),
+                "probability": round(prob_resistant, 2),
+                "confidence": confidence,
+                "model_tier": model_tier_cap,
+                "decision_threshold": round(threshold, 2),
                 "explanation": explanation_data
             }
             result.append(row)

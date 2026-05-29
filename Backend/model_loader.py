@@ -88,6 +88,10 @@ class ModelLoader:
 
                     logger.info(f"  - Loading {tier} pipeline for {ab_name}...")
                     pipeline = joblib.load(model_file)
+                    try:
+                        self._fix_imputer_compatibility(pipeline)
+                    except Exception as patch_err:
+                        logger.warning(f"Failed to apply version-compatibility patch: {patch_err}")
                     pipelines[ab_name] = pipeline
 
             # Calculate strain frequencies from v2 dataset for clinical feature engineering
@@ -130,6 +134,77 @@ class ModelLoader:
         if not self.is_loaded():
             raise ModelNotLoadedException("Models not loaded. Call load_models() first.")
         return self._models
+
+    def _fix_imputer_compatibility(self, estimator):
+        """Recursively search for SimpleImputer and XGBoost instances and patch missing or incorrect attributes due to version mismatches"""
+        if estimator is None:
+            return
+            
+        class_name = estimator.__class__.__name__
+        if class_name == "SimpleImputer":
+            try:
+                # Detect if the imputer is for categorical features by checking statistics_
+                is_categorical = False
+                if hasattr(estimator, "statistics_") and estimator.statistics_ is not None:
+                    if any(isinstance(val, str) for val in estimator.statistics_):
+                        is_categorical = True
+                
+                # Unconditionally force categorical imputer's _fill_dtype to object
+                if is_categorical:
+                    estimator._fill_dtype = object
+                    logger.info("SUCCESS: Forced categorical SimpleImputer _fill_dtype to object")
+                else:
+                    import numpy as np
+                    estimator._fill_dtype = np.float64
+                    logger.info("SUCCESS: Forced numerical SimpleImputer _fill_dtype to np.float64")
+            except Exception as ex:
+                try:
+                    estimator._fill_dtype = object
+                except Exception:
+                    pass
+                logger.warning(f"Failed to patch SimpleImputer attributes: {ex}")
+
+        elif "XGB" in class_name or "Classifier" in class_name or "Model" in class_name:
+            try:
+                # Self-healing parameter recovery loop for XGBoost estimators
+                while True:
+                    try:
+                        if hasattr(estimator, "get_params"):
+                            estimator.get_params(deep=False)
+                        break
+                    except AttributeError as ae:
+                        err_str = str(ae)
+                        if "object has no attribute" in err_str:
+                            attr_name = err_str.split("attribute")[-1].replace("'", "").strip()
+                            setattr(estimator, attr_name, None)
+                            logger.info(f"SUCCESS: Self-healed missing constructor parameter: {attr_name} = None on {class_name}")
+                        else:
+                            raise
+            except Exception as ex:
+                logger.warning(f"Failed to self-heal XGBoost attributes: {ex}")
+
+            # Also recursively patch all nested sub-objects in estimator's __dict__
+            if hasattr(estimator, "__dict__"):
+                for val in list(estimator.__dict__.values()):
+                    if hasattr(val, "__dict__"):
+                        self._fix_imputer_compatibility(val)
+                    
+        # Recursively traverse steps or transformers
+        if hasattr(estimator, "steps"):  # Pipeline
+            for name, step in estimator.steps:
+                self._fix_imputer_compatibility(step)
+                
+        if hasattr(estimator, "transformers"):  # ColumnTransformer
+            for name, trans, cols in estimator.transformers:
+                self._fix_imputer_compatibility(trans)
+                
+        if hasattr(estimator, "transformers_"):  # ColumnTransformer fitted transformers_
+            for name, trans, cols in estimator.transformers_:
+                self._fix_imputer_compatibility(trans)
+                
+        if hasattr(estimator, "named_steps"):  # Pipeline named_steps
+            for name, step in estimator.named_steps.items():
+                self._fix_imputer_compatibility(step)
 
     @classmethod
     def reset(cls):

@@ -197,12 +197,12 @@ async def predict(patient: PatientInput, explain: bool = False):
         high_confidence_resistant = [
             p["antibiotic"]
             for p in predictions
-            if p["prediction"] == "Resistant" and p["confidence"] > 80
+            if p["prediction"] == "Resistant" and p["confidence"] == "High"
         ]
         high_confidence_susceptible = [
             p["antibiotic"]
             for p in predictions
-            if p["prediction"] == "Susceptible" and p["confidence"] > 80
+            if p["prediction"] == "Susceptible" and p["confidence"] == "High"
         ]
 
         # Recommended antibiotics: susceptible with high confidence
@@ -246,7 +246,7 @@ async def info():
         api_name=settings.API_TITLE,
         version=settings.API_VERSION,
         environment=settings.ENVIRONMENT,
-        models=["XGBoost (Multi-Output)"],
+        models=["15 Independent XGBoost Pipelines (6 Production, 9 Experimental)"],
         antibiotics=ANTIBIOTIC_COLS,
         input_fields={
             "Age": "float (0-150 years)",

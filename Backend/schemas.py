@@ -46,10 +46,10 @@ class AntibioticPrediction(BaseModel):
 
     antibiotic: str
     prediction: str = Field(..., description="Prediction result (Resistant or Susceptible)")
-    confidence: float = Field(..., ge=0, le=100, description="Confidence percentage (0-100)")
-    confidence_tier: str = Field(..., description="Confidence tier (High, Medium, Low)")
-    model_tier: str = Field(..., description="Model tier (production or experimental)")
     probability: float = Field(..., description="Raw model probability of resistance")
+    confidence: str = Field(..., description="Confidence tier (High, Medium, Low)")
+    model_tier: str = Field(..., description="Model tier (Production or Experimental)")
+    decision_threshold: float = Field(..., description="Decision threshold used for prediction")
     explanation: Optional[Dict[str, Any]] = Field(None, description="SHAP explainability details")
 
 

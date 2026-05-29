@@ -164,30 +164,31 @@ async def health_check():
         500: {"model": ErrorResponse},
     },
 )
-async def predict(patient: PatientInput):
+async def predict(patient: PatientInput, explain: bool = False):
     """
-    Make antibiotic resistance predictions for a patient.
+    Make antibiotic resistance predictions for a patient with optional explainability.
 
-    This endpoint uses a single XGBoost multi-output model to predict resistance for 15 antibiotics.
+    This endpoint uses 15 independent per-antibiotic XGBoost pipelines to predict resistance.
 
     **Model:**
-    - XGBoost (multi-output with thresholds)
+    - XGBoost (independent per-antibiotic pipelines)
 
     **Input:** Patient data with 7 fields
-    **Output:** Predictions for 15 antibiotics with confidence scores
+    **Output:** Predictions for 15 antibiotics with confidence scores, tiers, and SHAP explainability.
     """
     try:
         if not model_loader.is_loaded():
             logger.error("Model not loaded for prediction")
             raise ModelNotLoadedException("ML model not initialized. Server may still be starting.")
 
-        logger.info(f"Processing prediction request for patient Age={patient.Age}, Gender={patient.Gender}")
+        logger.info(f"Processing prediction request for patient Age={patient.Age}, Gender={patient.Gender}, Explain={explain}")
 
         # Convert input to dictionary
         patient_dict = patient.model_dump()
 
         # Make predictions
-        predictions = predict_xgboost(patient_dict)
+        predictions = predict_xgboost(patient_dict, explain=explain)
+
 
         # Build summary
         resistant_antibiotics = [p["antibiotic"] for p in predictions if p["prediction"] == "Resistant"]

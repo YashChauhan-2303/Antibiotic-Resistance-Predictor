@@ -42,11 +42,16 @@ class PatientInput(BaseModel):
 
 
 class AntibioticPrediction(BaseModel):
-    """Schema for single antibiotic prediction"""
+    """Schema for single antibiotic prediction with explainability and confidence tiering"""
 
     antibiotic: str
     prediction: str = Field(..., description="Prediction result (Resistant or Susceptible)")
     confidence: float = Field(..., ge=0, le=100, description="Confidence percentage (0-100)")
+    confidence_tier: str = Field(..., description="Confidence tier (High, Medium, Low)")
+    model_tier: str = Field(..., description="Model tier (production or experimental)")
+    probability: float = Field(..., description="Raw model probability of resistance")
+    explanation: Optional[Dict[str, Any]] = Field(None, description="SHAP explainability details")
+
 
 
 class PredictionSummary(BaseModel):

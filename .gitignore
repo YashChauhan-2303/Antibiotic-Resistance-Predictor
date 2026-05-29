@@ -38,3 +38,11 @@ dist/
 # OS
 Thumbs.db
 .DS_Store
+
+.PROJECT_CONTEXT.md
+
+# Clinical DSS ignores
+.ipynb_checkpoints/
+logs/
+Backend/logs/
+**/__pycache__/

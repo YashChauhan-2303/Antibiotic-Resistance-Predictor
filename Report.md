@@ -85,7 +85,7 @@ graph TD
     SHAPEngine -->|"Top Positive/Negative Attributions"| ResultsScreen
 
     %% Health Monitor
-    HealthChecker -.-->|"Cached joblib status check"| API
+    HealthChecker -.->|"Cached joblib status check"| API
 ```
 
 ---
